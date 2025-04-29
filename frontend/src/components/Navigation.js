@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import './Navigation.css';
 
 const Navigation = () => {
   const { account, role, disconnectWallet } = useAuth();
@@ -48,28 +49,28 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+    <nav className="navigation">
+      <div className="navigation-container">
+        <div className="navigation-links">
           {getMenuItems().map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className="hover:text-gray-300 transition-colors"
+              className="nav-link"
             >
               {item.label}
             </Link>
           ))}
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="navigation-actions">
           {account ? (
             <>
-              <span className="text-sm">
+              <span className="account-address">
                 {account.slice(0, 6)}...{account.slice(-4)}
               </span>
               <button
                 onClick={handleDisconnect}
-                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition-colors"
+                className="disconnect-button"
               >
                 Disconnect
               </button>
@@ -77,7 +78,7 @@ const Navigation = () => {
           ) : (
             <Link
               to="/connect"
-              className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded transition-colors"
+              className="connect-button"
             >
               Connect Wallet
             </Link>

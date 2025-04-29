@@ -1,25 +1,25 @@
 const hre = require("hardhat");
 
 async function main() {
-  // Ανάπτυξη του EWasteTracker
+  // Deploy EWasteTracker
   const EWasteTracker = await hre.ethers.getContractFactory("EWasteTracker");
   const ewasteTracker = await EWasteTracker.deploy();
-  await ewasteTracker.deployed();
+  await ewasteTracker.waitForDeployment();
   
-  console.log("EWasteTracker deployed to:", ewasteTracker.address);
+  console.log("EWasteTracker deployed to:", await ewasteTracker.getAddress());
   
-  // Ανάπτυξη του EWasteCertificate με τη διεύθυνση του EWasteTracker
+  // Deploy EWasteCertificate with EWasteTracker address
   const EWasteCertificate = await hre.ethers.getContractFactory("EWasteCertificate");
-  const ewasteCertificate = await EWasteCertificate.deploy(ewasteTracker.address);
-  await ewasteCertificate.deployed();
+  const ewasteCertificate = await EWasteCertificate.deploy(await ewasteTracker.getAddress());
+  await ewasteCertificate.waitForDeployment();
   
-  console.log("EWasteCertificate deployed to:", ewasteCertificate.address);
+  console.log("EWasteCertificate deployed to:", await ewasteCertificate.getAddress());
   
-  // Αποθήκευση των διευθύνσεων των συμβολαίων για μελλοντική χρήση
+  // Save contract addresses for future use
   const fs = require("fs");
   const contractAddresses = {
-    EWasteTracker: ewasteTracker.address,
-    EWasteCertificate: ewasteCertificate.address
+    EWasteTracker: await ewasteTracker.getAddress(),
+    EWasteCertificate: await ewasteCertificate.getAddress()
   };
   
   fs.writeFileSync(

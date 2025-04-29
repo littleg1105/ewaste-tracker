@@ -1,0 +1,86 @@
+.navigation {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navigation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navigation-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navigation-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.account-address {
+  font-size: 0.875rem;
+  color: #e5e5e5;
+}
+
+.disconnect-button {
+  background-color: #dc2626;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.disconnect-button:hover {
+  background-color: #b91c1c;
+}
+
+.connect-button {
+  background-color: #3b82f6;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.connect-button:hover {
+  background-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .navigation-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .navigation-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navigation-actions {
+    width: 100%;
+    justify-content: center;
+  }
+} 

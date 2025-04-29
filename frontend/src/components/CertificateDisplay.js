@@ -62,42 +62,40 @@ const CertificateDisplay = () => {
   };
 
   if (loading) {
-    return <div className="text-center p-4">Loading certificates...</div>;
+    return <div style={{ textAlign: 'center', padding: '1rem' }}>Loading certificates...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return <div style={{ color: '#dc2626', padding: '1rem' }}>{error}</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white shadow rounded-lg p-4">
-          <h2 className="text-xl font-bold mb-4">Certificates</h2>
-          <div className="space-y-2">
+    <div className="container">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: '0.5rem', padding: '1rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Certificates</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {certificates.map((certificate) => (
               <div
                 key={certificate.id}
                 onClick={() => handleCertificateClick(certificate)}
-                className={`p-3 border rounded cursor-pointer hover:bg-gray-50 ${
-                  selectedCertificate?.id === certificate.id ? 'bg-blue-50' : ''
-                }`}
+                style={{
+                  padding: '0.75rem',
+                  border: '1px solid #ccc',
+                  borderRadius: '0.25rem',
+                  cursor: 'pointer',
+                  backgroundColor: selectedCertificate?.id === certificate.id ? '#e0f2fe' : 'white'
+                }}
               >
-                <div className="font-semibold">
+                <div style={{ fontWeight: '600' }}>
                   Certificate #{certificate.id}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div style={{ fontSize: '0.875rem', color: '#666' }}>
                   Device ID: {certificate.deviceId}
                 </div>
-                <div className="text-sm">
+                <div style={{ fontSize: '0.875rem' }}>
                   Status:{' '}
-                  <span
-                    className={
-                      certificate.isValid
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }
-                  >
+                  <span style={{ color: certificate.isValid ? '#059669' : '#dc2626' }}>
                     {certificate.isValid ? 'Valid' : 'Revoked'}
                   </span>
                 </div>
@@ -107,70 +105,61 @@ const CertificateDisplay = () => {
         </div>
 
         {selectedCertificate && deviceDetails && (
-          <div className="bg-white shadow rounded-lg p-4">
-            <h2 className="text-xl font-bold mb-4">Certificate Details</h2>
-            <div className="space-y-2">
+          <div style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: '0.5rem', padding: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Certificate Details</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div>
-                <span className="font-semibold">Certificate ID:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Certificate ID:</span>{' '}
                 {selectedCertificate.id}
               </div>
               <div>
-                <span className="font-semibold">Device ID:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Device ID:</span>{' '}
                 {selectedCertificate.deviceId}
               </div>
               <div>
-                <span className="font-semibold">Recycling Unit:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Recycling Unit:</span>{' '}
                 {selectedCertificate.recyclingUnit}
               </div>
               <div>
-                <span className="font-semibold">Issue Date:</span>{' '}
-                {new Date(
-                  selectedCertificate.issueDate * 1000
-                ).toLocaleString()}
+                <span style={{ fontWeight: '600' }}>Issue Date:</span>{' '}
+                {new Date(selectedCertificate.issueDate * 1000).toLocaleString()}
               </div>
               <div>
-                <span className="font-semibold">Status:</span>{' '}
-                <span
-                  className={
-                    selectedCertificate.isValid
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }
-                >
+                <span style={{ fontWeight: '600' }}>Status:</span>{' '}
+                <span style={{ color: selectedCertificate.isValid ? '#059669' : '#dc2626' }}>
                   {selectedCertificate.isValid ? 'Valid' : 'Revoked'}
                 </span>
               </div>
               <div>
-                <span className="font-semibold">Notes:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Notes:</span>{' '}
                 {selectedCertificate.notes}
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold mt-4 mb-2">Device Details</h3>
-            <div className="space-y-2">
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Device Details</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div>
-                <span className="font-semibold">Serial Number:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Serial Number:</span>{' '}
                 {deviceDetails.serialNumber}
               </div>
               <div>
-                <span className="font-semibold">Device Type:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Device Type:</span>{' '}
                 {deviceDetails.deviceType}
               </div>
               <div>
-                <span className="font-semibold">Current Status:</span>{' '}
+                <span style={{ fontWeight: '600' }}>Current Status:</span>{' '}
                 {deviceDetails.status}
               </div>
             </div>
 
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold mb-2">Verification Result</h3>
-              <div
-                className={`p-3 rounded ${
-                  verificationResult
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                }`}
-              >
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>Verification Result</h3>
+              <div style={{
+                padding: '0.75rem',
+                borderRadius: '0.25rem',
+                backgroundColor: verificationResult ? '#dcfce7' : '#fee2e2',
+                color: verificationResult ? '#166534' : '#b91c1c'
+              }}>
                 {verificationResult
                   ? 'Certificate is valid'
                   : 'Certificate is invalid or has been revoked'}

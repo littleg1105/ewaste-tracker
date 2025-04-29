@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
+import './DeviceSearch.css';
 
 const DeviceSearch = () => {
-  const { ewasteTracker } = useContract();
+  const { ewasteTracker, loading: contractLoading, error: contractError } = useContract();
   const { account } = useAuth();
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,24 +35,71 @@ const DeviceSearch = () => {
   };
 
   useEffect(() => {
-    loadDevices();
-  }, [ewasteTracker]);
+    if (ewasteTracker && !contractLoading) {
+      loadDevices();
+    }
+  }, [ewasteTracker, contractLoading]);
 
   const loadDevices = async () => {
     try {
       setLoading(true);
-      const deviceCount = await ewasteTracker.deviceCount();
-      const devicePromises = [];
+      setError('');
+      console.log('Loading devices...');
+      
+      if (!ewasteTracker) {
+        throw new Error('Contract not initialized');
+      }
 
-      for (let i = 1; i <= deviceCount; i++) {
+      const deviceCount = await ewasteTracker.deviceCount();
+      console.log('Device count:', deviceCount.toString());
+      
+      if (Number(deviceCount) === 0) {
+        console.log('No devices found');
+        setDevices([]);
+        return;
+      }
+
+      const devicePromises = [];
+      for (let i = 1; i <= Number(deviceCount); i++) {
         devicePromises.push(ewasteTracker.getDeviceById(i));
       }
 
       const deviceResults = await Promise.all(devicePromises);
-      setDevices(deviceResults);
+      console.log('Raw device results:', deviceResults);
+      
+      // Convert BigInt values to strings or numbers and handle Proxy objects
+      const processedDevices = deviceResults.map(device => {
+        if (!device) {
+          console.warn('Received null or undefined device');
+          return null;
+        }
+        try {
+          // Convert Proxy object to plain object
+          const deviceObj = {
+            id: Number(device.id),
+            serialNumber: device.serialNumber,
+            deviceType: device.deviceType,
+            deviceOwner: device.deviceOwner,
+            currentHolder: device.currentHolder,
+            status: Number(device.status),
+            hazardLevel: Number(device.hazardLevel),
+            operationalStatus: Number(device.operationalStatus),
+            registrationDate: Number(device.registrationDate),
+            lastUpdateDate: Number(device.lastUpdateDate)
+          };
+          console.log('Processed device:', deviceObj);
+          return deviceObj;
+        } catch (err) {
+          console.error('Error processing device:', err);
+          return null;
+        }
+      }).filter(Boolean); // Remove null devices
+      
+      console.log('Processed devices:', processedDevices);
+      setDevices(processedDevices);
     } catch (err) {
-      setError('Error loading devices');
-      console.error(err);
+      console.error('Error loading devices:', err);
+      setError('Error loading devices: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -59,10 +107,21 @@ const DeviceSearch = () => {
 
   const loadDeviceHistory = async (deviceId) => {
     try {
+      console.log('Loading history for device:', deviceId);
       const history = await ewasteTracker.getDeviceHistory(deviceId);
-      setDeviceHistory(history);
+      console.log('Device history:', history);
+      
+      // Convert BigInt values to numbers
+      const processedHistory = history.map(item => ({
+        ...item,
+        timestamp: Number(item.timestamp),
+        status: Number(item.status)
+      }));
+      
+      setDeviceHistory(processedHistory);
     } catch (err) {
       console.error('Error loading device history:', err);
+      setError('Error loading device history: ' + err.message);
     }
   };
 
@@ -72,6 +131,9 @@ const DeviceSearch = () => {
   };
 
   const filteredDevices = devices.filter(device => {
+    if (!device || !device.serialNumber || !device.deviceType) {
+      return false;
+    }
     const searchLower = searchTerm.toLowerCase();
     return (
       device.serialNumber.toLowerCase().includes(searchLower) ||
@@ -79,95 +141,121 @@ const DeviceSearch = () => {
     );
   });
 
+  if (contractLoading) {
+    return <div className="loading">Initializing contracts...</div>;
+  }
+
+  if (contractError) {
+    return <div className="error">Contract error: {contractError}</div>;
+  }
+
+  if (!ewasteTracker) {
+    return <div className="error">Contract not initialized. Please connect your wallet.</div>;
+  }
+
   if (loading) {
-    return <div className="text-center p-4">Loading devices...</div>;
+    return <div className="loading">Loading devices...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return <div className="error">{error}</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by serial number or device type..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-      </div>
+    <div className="device-search">
+      <input
+        type="text"
+        placeholder="Search by serial number or device type..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white shadow rounded-lg p-4">
-          <h2 className="text-xl font-bold mb-4">Devices</h2>
-          <div className="space-y-2">
-            {filteredDevices.map((device) => (
-              <div
-                key={device.id}
-                onClick={() => handleDeviceClick(device)}
-                className={`p-3 border rounded cursor-pointer hover:bg-gray-50 ${
-                  selectedDevice?.id === device.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="font-semibold">{device.serialNumber}</div>
-                <div className="text-sm text-gray-600">{device.deviceType}</div>
-                <div className="text-sm">
-                  Status: {DeviceStatus[device.status]}
+      <div className="device-grid">
+        <div className="device-list">
+          <h2 className="device-list-title">Devices</h2>
+          <div>
+            {filteredDevices.length === 0 ? (
+              <div className="no-devices">No devices found</div>
+            ) : (
+              filteredDevices.map((device) => (
+                <div
+                  key={device.id}
+                  onClick={() => handleDeviceClick(device)}
+                  className={`device-item ${selectedDevice?.id === device.id ? 'selected' : ''}`}
+                >
+                  <div className="device-serial">{device.serialNumber}</div>
+                  <div className="device-type">{device.deviceType}</div>
+                  <div className="device-status">
+                    Status: {DeviceStatus[device.status]}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
         {selectedDevice && (
-          <div className="bg-white shadow rounded-lg p-4">
-            <h2 className="text-xl font-bold mb-4">Device Details</h2>
-            <div className="space-y-2">
-              <div>
-                <span className="font-semibold">Serial Number:</span>{' '}
+          <div className="device-details">
+            <h2 className="device-details-title">Device Details</h2>
+            <div>
+              <div className="device-detail-item">
+                <span className="device-detail-label">Serial Number:</span>{' '}
                 {selectedDevice.serialNumber}
               </div>
-              <div>
-                <span className="font-semibold">Device Type:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Device Type:</span>{' '}
                 {selectedDevice.deviceType}
               </div>
-              <div>
-                <span className="font-semibold">Hazard Level:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Hazard Level:</span>{' '}
                 {HazardLevel[selectedDevice.hazardLevel]}
               </div>
-              <div>
-                <span className="font-semibold">Operational Status:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Operational Status:</span>{' '}
                 {OperationalStatus[selectedDevice.operationalStatus]}
               </div>
-              <div>
-                <span className="font-semibold">Current Status:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Current Status:</span>{' '}
                 {DeviceStatus[selectedDevice.status]}
               </div>
-              <div>
-                <span className="font-semibold">Owner:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Owner:</span>{' '}
                 {selectedDevice.deviceOwner}
               </div>
-              <div>
-                <span className="font-semibold">Current Holder:</span>{' '}
+              <div className="device-detail-item">
+                <span className="device-detail-label">Current Holder:</span>{' '}
                 {selectedDevice.currentHolder}
+              </div>
+              <div className="device-detail-item">
+                <span className="device-detail-label">Registration Date:</span>{' '}
+                {new Date(selectedDevice.registrationDate * 1000).toLocaleString()}
+              </div>
+              <div className="device-detail-item">
+                <span className="device-detail-label">Last Update:</span>{' '}
+                {new Date(selectedDevice.lastUpdateDate * 1000).toLocaleString()}
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold mt-4 mb-2">Device History</h3>
-            <div className="space-y-2">
-              {deviceHistory.map((history, index) => (
-                <div key={index} className="border-b pb-2">
-                  <div className="font-semibold">
-                    {DeviceStatus[history.status]}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {new Date(history.timestamp * 1000).toLocaleString()}
-                  </div>
-                  <div className="text-sm">{history.notes}</div>
-                </div>
-              ))}
+            <div className="device-history">
+              <h3 className="device-history-title">Device History</h3>
+              <div>
+                {deviceHistory.length === 0 ? (
+                  <div className="no-history">No history available</div>
+                ) : (
+                  deviceHistory.map((history, index) => (
+                    <div key={index} className="history-item">
+                      <div className="history-status">
+                        {DeviceStatus[history.status]}
+                      </div>
+                      <div className="history-timestamp">
+                        {new Date(history.timestamp * 1000).toLocaleString()}
+                      </div>
+                      <div className="history-notes">{history.notes}</div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}
