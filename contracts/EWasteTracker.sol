@@ -206,7 +206,7 @@ contract EWasteTracker {
             block.timestamp
         );
         
-        // Record history
+        // Add initial history entry
         deviceHistory[newDeviceId].push(History(
             block.timestamp,
             DeviceStatus.Registered,
