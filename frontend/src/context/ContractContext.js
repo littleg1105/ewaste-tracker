@@ -12,7 +12,7 @@ export const useContract = () => useContext(ContractContext);
 export const ContractProvider = ({ children }) => {
   const { provider, signer } = useAuth();
   const [ewasteTracker, setEwasteTracker] = useState(null);
-  const [ewasteCertificate, setEwasteCertificate] = useState(null);
+  const [eWasteCertificate, setEWasteCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -75,7 +75,7 @@ export const ContractProvider = ({ children }) => {
         }
 
         setEwasteTracker(trackerContract);
-        setEwasteCertificate(certificateContract);
+        setEWasteCertificate(certificateContract);
       } catch (error) {
         console.error('Error initializing contracts:', error);
         setError(error.message);
@@ -89,7 +89,7 @@ export const ContractProvider = ({ children }) => {
 
   const value = {
     ewasteTracker,
-    ewasteCertificate,
+    eWasteCertificate,
     loading,
     error,
   };

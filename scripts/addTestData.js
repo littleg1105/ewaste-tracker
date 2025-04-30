@@ -9,17 +9,17 @@ async function main() {
   const testUsers = [
     {
       name: "John Doe",
-      role: 0, // Manufacturer
+      role: 1, // User role
       address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
     },
     {
       name: "Jane Smith",
-      role: 1, // Recycler
+      role: 1, // User role
       address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
     },
     {
       name: "Bob Wilson",
-      role: 2, // Collector
+      role: 2, // GreenPoint role
       address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
     }
   ];
@@ -27,23 +27,20 @@ async function main() {
   // Add users
   for (const user of testUsers) {
     try {
-      // Check if user exists
-      const userExists = await ewasteTracker.getUserByAddress(user.address);
-      if (userExists.isActive) {
+      // Check if user exists by accessing the users mapping
+      const userInfo = await ewasteTracker.users(user.address);
+      if (userInfo.isActive) {
         console.log(`User ${user.name} already exists, skipping...`);
         continue;
       }
 
       console.log(`Adding user: ${user.name}`);
-      const tx = await ewasteTracker.addUser(user.name, user.role, user.address);
+      // Note: addUser expects (address, name, role) according to the contract
+      const tx = await ewasteTracker.addUser(user.address, user.name, user.role);
       await tx.wait();
       console.log(`Successfully added user: ${user.name}`);
     } catch (error) {
-      if (error.message.includes("User already exists")) {
-        console.log(`User ${user.name} already exists, skipping...`);
-      } else {
-        console.error(`Error adding user ${user.name}:`, error.message);
-      }
+      console.error(`Error adding user ${user.name}:`, error.message);
     }
   }
 
@@ -72,6 +69,10 @@ async function main() {
 
   // Connect as the first user (John Doe) to register devices
   const user1Contract = ewasteTracker.connect(await hre.ethers.getSigner(testUsers[0].address));
+
+  // Verify the user has the correct role before registering devices
+  const userRole = await ewasteTracker.users(testUsers[0].address);
+  console.log(`User role in contract: ${userRole.role}`);
 
   for (const device of testDevices) {
     try {
