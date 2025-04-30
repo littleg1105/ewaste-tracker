@@ -1,10 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Divider,
+} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const TransporterDashboard = () => {
-  const { ewasteTracker } = useAuth();
-  const { signer, role } = useAuth();
+  const { ewasteTracker, signer, role } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -13,19 +34,16 @@ const TransporterDashboard = () => {
   const [deviceDetails, setDeviceDetails] = useState(null);
   const [fetchingDetails, setFetchingDetails] = useState(false);
   
-  // For starting transport
   const [transportData, setTransportData] = useState({
     deviceId: '',
     route: ''
   });
   
-  // For delivering device
   const [deliveryData, setDeliveryData] = useState({
     deviceId: '',
     recyclingUnitAddress: ''
   });
 
-  // Status mapping for display
   const statusNames = ['Registered', 'Collected', 'In Transit', 'Delivered', 'Recycled', 'Destroyed'];
   const hazardLevelNames = ['Low', 'Medium', 'High'];
   const operationalStatusNames = ['Functional', 'Damaged', 'Hazardous'];
@@ -39,15 +57,14 @@ const TransporterDashboard = () => {
   const loadDevices = async () => {
     try {
       setLoading(true);
-      // Get devices with "Collected" status (1)
       const collected = await ewasteTracker.getDevicesByStatus(1);
       setCollectedDevices(collected.map(id => id.toString()));
       
-      // Get devices with "In Transit" status (2)
       const inTransit = await ewasteTracker.getDevicesByStatus(2);
       setInTransitDevices(inTransit.map(id => id.toString()));
     } catch (err) {
       console.error('Error loading devices:', err);
+      setError('Failed to load devices');
     } finally {
       setLoading(false);
     }
@@ -102,7 +119,6 @@ const TransporterDashboard = () => {
         route: ''
       });
       
-      // Refresh device lists
       loadDevices();
     } catch (err) {
       setError(err.message || 'Error starting transport');
@@ -134,7 +150,6 @@ const TransporterDashboard = () => {
         recyclingUnitAddress: ''
       });
       
-      // Refresh device lists
       loadDevices();
     } catch (err) {
       setError(err.message || 'Error delivering device');
@@ -158,299 +173,332 @@ const TransporterDashboard = () => {
     }
   };
 
-  // Check if user has Transporter role
   if (role !== 3) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-50 p-4 rounded border border-red-200">
-          <p className="text-red-800">You do not have permission to access this page. Only Transporters can manage device transportation.</p>
-        </div>
-      </div>
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          You do not have permission to access this page. Only Transporters can manage device transportation.
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Transporter Dashboard</h1>
-      
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Transporter Dashboard
+      </Typography>
+
       {error && (
-        <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
-          <p className="text-red-800">{error}</p>
-        </div>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
-      
+
       {success && (
-        <div className="bg-green-50 p-4 rounded border border-green-200 mb-4">
-          <p className="text-green-800">{success}</p>
-        </div>
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
       )}
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <Grid container spacing={3}>
         {/* Start Transport Form */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Start Transport</h2>
-          <form onSubmit={handleTransportStart} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device ID
-              </label>
-              <select
-                name="deviceId"
-                value={transportData.deviceId}
-                onChange={(e) => handleChange('transport', e)}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                <option value="">Select a device</option>
-                {collectedDevices.map(id => (
-                  <option key={id} value={id}>Device #{id}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Transport Route
-              </label>
-              <textarea
-                name="route"
-                value={transportData.route}
-                onChange={(e) => handleChange('transport', e)}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Specify transport route and details..."
-                rows="3"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={loading || collectedDevices.length === 0}
-              className={`w-full p-2 text-white font-medium rounded-md ${
-                loading || collectedDevices.length === 0 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {loading ? 'Processing...' : 'Start Transport'}
-            </button>
-            
-            {collectedDevices.length === 0 && (
-              <p className="text-sm text-amber-600">No devices available for transport</p>
-            )}
-          </form>
-        </div>
-        
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Start Transport
+              </Typography>
+              <Box component="form" onSubmit={handleTransportStart} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  select
+                  label="Device ID"
+                  name="deviceId"
+                  value={transportData.deviceId}
+                  onChange={(e) => handleChange('transport', e)}
+                  required
+                  fullWidth
+                  SelectProps={{
+                    native: true,
+                  }}
+                >
+                  <option value="">Select a device</option>
+                  {collectedDevices.map(id => (
+                    <option key={id} value={id}>Device #{id}</option>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="Transport Route"
+                  name="route"
+                  value={transportData.route}
+                  onChange={(e) => handleChange('transport', e)}
+                  required
+                  multiline
+                  rows={3}
+                  fullWidth
+                  placeholder="Specify transport route and details..."
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading || collectedDevices.length === 0}
+                  startIcon={loading ? <CircularProgress size={20} /> : <LocalShippingIcon />}
+                >
+                  {loading ? 'Processing...' : 'Start Transport'}
+                </Button>
+
+                {collectedDevices.length === 0 && (
+                  <Typography color="warning.main" variant="body2">
+                    No devices available for transport
+                  </Typography>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
         {/* Deliver Device Form */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Deliver Device</h2>
-          <form onSubmit={handleDeviceDelivery} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device ID
-              </label>
-              <select
-                name="deviceId"
-                value={deliveryData.deviceId}
-                onChange={(e) => handleChange('delivery', e)}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                <option value="">Select a device</option>
-                {inTransitDevices.map(id => (
-                  <option key={id} value={id}>Device #{id}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Recycling Unit Address
-              </label>
-              <input
-                type="text"
-                name="recyclingUnitAddress"
-                value={deliveryData.recyclingUnitAddress}
-                onChange={(e) => handleChange('delivery', e)}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="0x..."
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={loading || inTransitDevices.length === 0}
-              className={`w-full p-2 text-white font-medium rounded-md ${
-                loading || inTransitDevices.length === 0 ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              {loading ? 'Processing...' : 'Deliver Device'}
-            </button>
-            
-            {inTransitDevices.length === 0 && (
-              <p className="text-sm text-amber-600">No devices in transit to deliver</p>
-            )}
-          </form>
-        </div>
-        
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Deliver Device
+              </Typography>
+              <Box component="form" onSubmit={handleDeviceDelivery} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  select
+                  label="Device ID"
+                  name="deviceId"
+                  value={deliveryData.deviceId}
+                  onChange={(e) => handleChange('delivery', e)}
+                  required
+                  fullWidth
+                  SelectProps={{
+                    native: true,
+                  }}
+                >
+                  <option value="">Select a device</option>
+                  {inTransitDevices.map(id => (
+                    <option key={id} value={id}>Device #{id}</option>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="Recycling Unit Address"
+                  name="recyclingUnitAddress"
+                  value={deliveryData.recyclingUnitAddress}
+                  onChange={(e) => handleChange('delivery', e)}
+                  required
+                  fullWidth
+                  placeholder="0x..."
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="success"
+                  disabled={loading || inTransitDevices.length === 0}
+                  startIcon={loading ? <CircularProgress size={20} /> : <CheckCircleIcon />}
+                >
+                  {loading ? 'Processing...' : 'Deliver Device'}
+                </Button>
+
+                {inTransitDevices.length === 0 && (
+                  <Typography color="warning.main" variant="body2">
+                    No devices in transit to deliver
+                  </Typography>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
         {/* Device Details */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Device Details</h2>
-          
-          {fetchingDetails ? (
-            <p className="text-gray-600">Loading device details...</p>
-          ) : deviceDetails ? (
-            <div className="space-y-2">
-              <p><span className="font-medium">ID:</span> {deviceDetails.id}</p>
-              <p><span className="font-medium">Serial Number:</span> {deviceDetails.serialNumber}</p>
-              <p><span className="font-medium">Type:</span> {deviceDetails.deviceType}</p>
-              <p><span className="font-medium">Hazard Level:</span> {hazardLevelNames[deviceDetails.hazardLevel]}</p>
-              <p><span className="font-medium">Condition:</span> {operationalStatusNames[deviceDetails.operationalStatus]}</p>
-              <p><span className="font-medium">Status:</span> {statusNames[deviceDetails.status]}</p>
-              <p><span className="font-medium">Last Updated:</span> {deviceDetails.lastUpdateDate}</p>
-              
-              {deviceDetails.status === 1 && (
-                <button
-                  onClick={() => {
-                    setTransportData({
-                      ...transportData,
-                      deviceId: deviceDetails.id
-                    });
-                  }}
-                  className="mt-3 w-full p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Start Transport for This Device
-                </button>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Device Details
+              </Typography>
+
+              {fetchingDetails ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress />
+                </Box>
+              ) : deviceDetails ? (
+                <Box>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        ID
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.id}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Serial Number
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.serialNumber}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Type
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.deviceType}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Status
+                      </Typography>
+                      <Typography variant="body1">{statusNames[deviceDetails.status]}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Last Updated
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.lastUpdateDate}</Typography>
+                    </Grid>
+                  </Grid>
+
+                  {deviceDetails.status === 1 && (
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{ mt: 2 }}
+                      onClick={() => {
+                        setTransportData({
+                          ...transportData,
+                          deviceId: deviceDetails.id
+                        });
+                      }}
+                    >
+                      Start Transport for This Device
+                    </Button>
+                  )}
+
+                  {deviceDetails.status === 2 && (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      sx={{ mt: 2 }}
+                      onClick={() => {
+                        setDeliveryData({
+                          ...deliveryData,
+                          deviceId: deviceDetails.id
+                        });
+                      }}
+                    >
+                      Deliver This Device
+                    </Button>
+                  )}
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Typography color="text.secondary" gutterBottom>
+                    Select a device to view details
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      disabled={collectedDevices.length === 0}
+                      onClick={() => collectedDevices.length > 0 && fetchDeviceDetails(collectedDevices[0])}
+                    >
+                      View Collected Device
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      disabled={inTransitDevices.length === 0}
+                      onClick={() => inTransitDevices.length > 0 && fetchDeviceDetails(inTransitDevices[0])}
+                    >
+                      View In-Transit Device
+                    </Button>
+                  </Box>
+                </Box>
               )}
-              
-              {deviceDetails.status === 2 && (
-                <button
-                  onClick={() => {
-                    setDeliveryData({
-                      ...deliveryData,
-                      deviceId: deviceDetails.id
-                    });
-                  }}
-                  className="mt-3 w-full p-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Deliver This Device
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-gray-600 mb-4">Select a device to view details</p>
-              <div className="space-y-3">
-                <button 
-                  onClick={() => collectedDevices.length > 0 && fetchDeviceDetails(collectedDevices[0])}
-                  disabled={collectedDevices.length === 0}
-                  className={`w-full p-2 rounded-md ${
-                    collectedDevices.length === 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                  }`}
-                >
-                  View Collected Device
-                </button>
-                <button 
-                  onClick={() => inTransitDevices.length > 0 && fetchDeviceDetails(inTransitDevices[0])}
-                  disabled={inTransitDevices.length === 0}
-                  className={`w-full p-2 rounded-md ${
-                    inTransitDevices.length === 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-green-100 text-green-800 hover:bg-green-200'
-                  }`}
-                >
-                  View In-Transit Device
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Tables of Devices */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/* Collected Devices */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Collected Devices</h2>
-          {loading ? (
-            <p className="text-gray-600">Loading devices...</p>
-          ) : collectedDevices.length === 0 ? (
-            <p className="text-gray-600">No collected devices available.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {collectedDevices.map((id) => (
-                    <tr key={id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">Device #{id}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => fetchDeviceDetails(id)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-        
-        {/* In Transit Devices */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Devices In Transit</h2>
-          {loading ? (
-            <p className="text-gray-600">Loading devices...</p>
-          ) : inTransitDevices.length === 0 ? (
-            <p className="text-gray-600">No devices currently in transit.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {inTransitDevices.map((id) => (
-                    <tr key={id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">Device #{id}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => fetchDeviceDetails(id)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Device Tables */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {/* Collected Devices Table */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Collected Devices
+              </Typography>
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell align="right">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {collectedDevices.map((id) => (
+                      <TableRow key={id}>
+                        <TableCell>Device #{id}</TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            color="primary"
+                            onClick={() => fetchDeviceDetails(id)}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* In Transit Devices Table */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Devices In Transit
+              </Typography>
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell align="right">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {inTransitDevices.map((id) => (
+                      <TableRow key={id}>
+                        <TableCell>Device #{id}</TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            color="primary"
+                            onClick={() => fetchDeviceDetails(id)}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

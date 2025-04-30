@@ -1,4 +1,4 @@
-/* Base styles */
+/* Reset and base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,91 +7,8 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.mx-auto {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.p-4 {
-  padding: 1rem;
-}
-
-.py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-/* Text utilities */
-.text-2xl {
-  font-size: 1.5rem;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-
-.mb-4 {
-  margin-bottom: 1rem;
-}
-
-.mb-6 {
-  margin-bottom: 1.5rem;
-}
-
-/* Colors */
-.bg-blue-50 {
-  background-color: #eff6ff;
-}
-
-.text-blue-800 {
-  color: #1e40af;
-}
-
-.border-blue-200 {
-  border-color: #bfdbfe;
-}
-
-/* Borders */
-.rounded {
-  border-radius: 0.25rem;
-}
-
-.border {
-  border-width: 1px;
-  border-style: solid;
-}
-
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.nav-link {
-  color: #007bff;
-  text-decoration: none;
-  margin: 0 10px;
-}
-
-.nav-link:hover {
-  text-decoration: underline;
-} 
+/* Remove any other custom styles as they are now handled by Material UI */ 

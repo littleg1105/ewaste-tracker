@@ -1,13 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider, CssBaseline, Container } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
+import theme from './theme';
+
+// Components
 import Navigation from './components/Navigation';
 import DeviceRegistration from './components/DeviceRegistration';
 import DeviceSearch from './components/DeviceSearch';
 import CertificateDisplay from './components/CertificateDisplay';
 import ConnectWallet from './components/ConnectWallet';
 
-// Import new page components
+// Pages
 import Home from './pages/Home';
 import AdminPanel from './pages/AdminPanel';
 import GreenPointDashboard from './pages/GreenPointDashboard';
@@ -17,11 +21,12 @@ import InspectorDashboard from './pages/InspectorDashboard';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AuthProvider>
           <Navigation />
-          <main className="container mx-auto py-4">
+          <Container maxWidth="xl" sx={{ py: 4 }}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/connect" element={<ConnectWallet />} />
@@ -38,10 +43,10 @@ function App() {
               
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </main>
-        </div>
-      </AuthProvider>
-    </Router>
+          </Container>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 

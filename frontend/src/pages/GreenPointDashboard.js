@@ -1,10 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Divider,
+  Paper,
+  Grid,
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const GreenPointDashboard = () => {
-  const { ewasteTracker } = useAuth();
-  const { signer, role } = useAuth();
+  const { ewasteTracker, signer, role } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -20,8 +37,9 @@ const GreenPointDashboard = () => {
   const operationalStatusNames = ['Functional', 'Damaged', 'Hazardous'];
 
   useEffect(() => {
-    // Load registered devices when component mounts
-    loadRegisteredDevices();
+    if (ewasteTracker) {
+      loadRegisteredDevices();
+    }
   }, [ewasteTracker]);
 
   const loadRegisteredDevices = async () => {
@@ -29,11 +47,11 @@ const GreenPointDashboard = () => {
 
     try {
       setLoading(true);
-      // Get devices with "Registered" status (0)
       const devices = await ewasteTracker.getDevicesByStatus(0);
       setRegisteredDevices(devices.map(id => id.toString()));
     } catch (err) {
       console.error('Error loading registered devices:', err);
+      setError('Failed to load registered devices');
     } finally {
       setLoading(false);
     }
@@ -83,7 +101,6 @@ const GreenPointDashboard = () => {
       setDeviceId('');
       setNotes('');
       
-      // Refresh device list
       loadRegisteredDevices();
     } catch (err) {
       setError(err.message || 'Error collecting device');
@@ -92,145 +109,176 @@ const GreenPointDashboard = () => {
     }
   };
 
-  // Check if user has Green Point role
   if (role !== 2) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-50 p-4 rounded border border-red-200">
-          <p className="text-red-800">You do not have permission to access this page. Only Green Point operators can collect devices.</p>
-        </div>
-      </div>
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          You do not have permission to access this page. Only Green Point operators can collect devices.
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Green Point Dashboard</h1>
-      
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Green Point Dashboard
+      </Typography>
+
       {error && (
-        <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
-          <p className="text-red-800">{error}</p>
-        </div>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
-      
+
       {success && (
-        <div className="bg-green-50 p-4 rounded border border-green-200 mb-4">
-          <p className="text-green-800">{success}</p>
-        </div>
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Form to collect a device */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Collect Device</h2>
-          <form onSubmit={handleCollect} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Device ID
-              </label>
-              <input
-                type="number"
-                value={deviceId}
-                onChange={(e) => setDeviceId(e.target.value)}
-                required
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter device ID"
-                min="1"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Collection Notes
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Add collection details..."
-                rows="3"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full p-2 text-white font-medium rounded-md ${
-                loading ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              {loading ? 'Processing...' : 'Collect Device'}
-            </button>
-          </form>
-        </div>
+      <Grid container spacing={3}>
+        {/* Collect Device Form */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Collect Device
+              </Typography>
+              <Box component="form" onSubmit={handleCollect} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  label="Device ID"
+                  type="number"
+                  value={deviceId}
+                  onChange={(e) => setDeviceId(e.target.value)}
+                  required
+                  fullWidth
+                  inputProps={{ min: 1 }}
+                />
 
-        {/* Available devices for collection */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Devices Available for Collection</h2>
-          
-          {loading ? (
-            <p className="text-gray-600">Loading devices...</p>
-          ) : registeredDevices.length === 0 ? (
-            <p className="text-gray-600">No devices available for collection.</p>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-gray-600">Select a device to view details:</p>
-              <div className="max-h-60 overflow-y-auto">
-                <ul className="divide-y divide-gray-200">
+                <TextField
+                  label="Collection Notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  placeholder="Add collection details..."
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                  startIcon={loading ? <CircularProgress size={20} /> : null}
+                >
+                  {loading ? 'Processing...' : 'Collect Device'}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Available Devices */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                Devices Available for Collection
+              </Typography>
+
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress />
+                </Box>
+              ) : registeredDevices.length === 0 ? (
+                <Typography color="text.secondary" align="center">
+                  No devices available for collection.
+                </Typography>
+              ) : (
+                <List sx={{ maxHeight: 300, overflow: 'auto' }}>
                   {registeredDevices.map((id) => (
-                    <li 
-                      key={id} 
-                      className="py-2 cursor-pointer hover:bg-gray-50"
-                      onClick={() => fetchDeviceDetails(id)}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Device #{id}</span>
-                        <button 
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeviceId(id);
-                          }}
-                        >
-                          Select
-                        </button>
-                      </div>
-                    </li>
+                    <React.Fragment key={id}>
+                      <ListItem
+                        button
+                        onClick={() => fetchDeviceDetails(id)}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Device #${id}`}
+                          secondary="Click to view details"
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton
+                            edge="end"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeviceId(id);
+                            }}
+                            color="primary"
+                          >
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
                   ))}
-                </ul>
-              </div>
-            </div>
-          )}
-          
-          {fetchingDetails && (
-            <div className="mt-4">
-              <p className="text-gray-600">Loading device details...</p>
-            </div>
-          )}
-          
-          {deviceDetails && !fetchingDetails && (
-            <div className="mt-4 border-t pt-4">
-              <h3 className="font-semibold text-lg mb-2">Device Details</h3>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-medium">Serial Number:</span> {deviceDetails.serialNumber}</p>
-                <p><span className="font-medium">Type:</span> {deviceDetails.deviceType}</p>
-                <p><span className="font-medium">Hazard Level:</span> {hazardLevelNames[deviceDetails.hazardLevel]}</p>
-                <p><span className="font-medium">Condition:</span> {operationalStatusNames[deviceDetails.operationalStatus]}</p>
-                <p><span className="font-medium">Status:</span> {statusNames[deviceDetails.status]}</p>
-                <p><span className="font-medium">Registered:</span> {deviceDetails.registrationDate}</p>
-                <p className="truncate"><span className="font-medium">Owner:</span> {deviceDetails.owner}</p>
-              </div>
-              <button
-                onClick={() => setDeviceId(deviceDetails.id)}
-                className="mt-3 w-full p-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Collect This Device
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                </List>
+              )}
+
+              {deviceDetails && !fetchingDetails && (
+                <Paper sx={{ mt: 2, p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Device Details
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        Serial Number
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.serialNumber}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        Type
+                      </Typography>
+                      <Typography variant="body1">{deviceDetails.deviceType}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        Hazard Level
+                      </Typography>
+                      <Typography variant="body1">{hazardLevelNames[deviceDetails.hazardLevel]}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        Condition
+                      </Typography>
+                      <Typography variant="body1">{operationalStatusNames[deviceDetails.operationalStatus]}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={() => setDeviceId(deviceDetails.id)}
+                      >
+                        Collect This Device
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
