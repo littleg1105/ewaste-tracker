@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ContractProvider } from './context/ContractContext';
 import Navigation from './components/Navigation';
 import DeviceRegistration from './components/DeviceRegistration';
 import DeviceSearch from './components/DeviceSearch';
@@ -20,29 +19,27 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ContractProvider>
-          <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-            <Navigation />
-            <main className="container mx-auto py-4">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/connect" element={<ConnectWallet />} />
-                <Route path="/register-device" element={<DeviceRegistration />} />
-                <Route path="/devices" element={<DeviceSearch />} />
-                <Route path="/certificates" element={<CertificateDisplay />} />
-                
-                {/* New role-specific routes */}
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/green-point" element={<GreenPointDashboard />} />
-                <Route path="/transporter" element={<TransporterDashboard />} />
-                <Route path="/recycling-unit" element={<RecyclingUnitDashboard />} />
-                <Route path="/inspector" element={<InspectorDashboard />} />
-                
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </div>
-        </ContractProvider>
+        <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+          <Navigation />
+          <main className="container mx-auto py-4">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/connect" element={<ConnectWallet />} />
+              <Route path="/register-device" element={<DeviceRegistration />} />
+              <Route path="/devices" element={<DeviceSearch />} />
+              <Route path="/certificates" element={<CertificateDisplay />} />
+              
+              {/* Role-specific routes */}
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/green-point" element={<GreenPointDashboard />} />
+              <Route path="/transporter" element={<TransporterDashboard />} />
+              <Route path="/recycling-unit" element={<RecyclingUnitDashboard />} />
+              <Route path="/inspector" element={<InspectorDashboard />} />
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
       </AuthProvider>
     </Router>
   );

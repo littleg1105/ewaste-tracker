@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -15,9 +15,18 @@ import {
   Chip,
   Container,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  ListItemIcon
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import DevicesIcon from '@mui/icons-material/Devices';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import FactoryIcon from '@mui/icons-material/Factory';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 
 const Navigation = () => {
   const { account, role, disconnectWallet } = useAuth();
@@ -34,37 +43,71 @@ const Navigation = () => {
 
   const getMenuItems = () => {
     const items = [
-      { path: '/', label: 'Home' },
+      { path: '/', label: 'Home', icon: <HomeIcon /> },
     ];
 
     if (account) {
-      items.push({ path: '/devices', label: 'Devices' });
+      items.push({ path: '/devices', label: 'Devices', icon: <DevicesIcon /> });
 
-      if (role === 0) { // Admin
-        items.push({ path: '/admin', label: 'Admin Panel' });
-      }
-
-      if (role === 1) { // User
-        items.push({ path: '/register-device', label: 'Register Device' });
-      }
-
-      if (role === 2) { // Green Point
-        items.push({ path: '/green-point', label: 'Green Point Dashboard' });
-      }
-
-      if (role === 3) { // Transporter
-        items.push({ path: '/transporter', label: 'Transporter Dashboard' });
-      }
-
-      if (role === 4) { // Recycling Unit
-        items.push(
-          { path: '/recycling-unit', label: 'Recycling Dashboard' },
-          { path: '/certificates', label: 'Certificates' }
-        );
-      }
-
-      if (role === 5) { // Environment Inspector
-        items.push({ path: '/inspector', label: 'Inspector Dashboard' });
+      switch (Number(role)) {
+        case 0: // Admin
+          items.push({ 
+            path: '/admin', 
+            label: 'Admin Panel', 
+            icon: <AdminPanelSettingsIcon />,
+            description: 'Manage users and system settings'
+          });
+          break;
+        case 1: // User
+          items.push({ 
+            path: '/register-device', 
+            label: 'Register Device', 
+            icon: <AddCircleIcon />,
+            description: 'Register new e-waste devices'
+          });
+          break;
+        case 2: // Green Point
+          items.push({ 
+            path: '/green-point', 
+            label: 'Green Point Dashboard', 
+            icon: <RecyclingIcon />,
+            description: 'Manage device collection'
+          });
+          break;
+        case 3: // Transporter
+          items.push({ 
+            path: '/transporter', 
+            label: 'Transporter Dashboard', 
+            icon: <LocalShippingIcon />,
+            description: 'Manage device transportation'
+          });
+          break;
+        case 4: // Recycling Unit
+          items.push(
+            { 
+              path: '/recycling-unit', 
+              label: 'Recycling Dashboard', 
+              icon: <FactoryIcon />,
+              description: 'Manage device recycling'
+            },
+            { 
+              path: '/certificates', 
+              label: 'Certificates', 
+              icon: <VerifiedUserIcon />,
+              description: 'View and manage recycling certificates'
+            }
+          );
+          break;
+        case 5: // Environment Inspector
+          items.push({ 
+            path: '/inspector', 
+            label: 'Inspector Dashboard', 
+            icon: <VerifiedUserIcon />,
+            description: 'Monitor and inspect e-waste tracking'
+          });
+          break;
+        default:
+          break;
       }
     }
 
@@ -80,11 +123,13 @@ const Navigation = () => {
         component={Link}
         to={item.path}
         color="inherit"
+        startIcon={item.icon}
         sx={{
           mx: 1,
           borderBottom: location.pathname === item.path ? 2 : 0,
           borderColor: 'secondary.main',
-          borderRadius: 0
+          borderRadius: 0,
+          textTransform: 'none'
         }}
       >
         {item.label}
@@ -98,7 +143,7 @@ const Navigation = () => {
       open={mobileMenuOpen}
       onClose={() => setMobileMenuOpen(false)}
     >
-      <Box sx={{ width: 250, pt: 2 }}>
+      <Box sx={{ width: 280, pt: 2 }}>
         <List>
           {menuItems.map((item) => (
             <ListItem
@@ -109,7 +154,11 @@ const Navigation = () => {
               onClick={() => setMobileMenuOpen(false)}
               selected={location.pathname === item.path}
             >
-              <ListItemText primary={item.label} />
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText 
+                primary={item.label}
+                secondary={item.description}
+              />
             </ListItem>
           ))}
         </List>
@@ -163,9 +212,12 @@ const Navigation = () => {
               mr: 2,
               color: 'primary.main',
               textDecoration: 'none',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center'
             }}
           >
+            <RecyclingIcon sx={{ mr: 1 }} />
             E-Waste Tracker
           </Typography>
 
@@ -189,6 +241,7 @@ const Navigation = () => {
                   variant="contained"
                   color="error"
                   onClick={handleDisconnect}
+                  startIcon={<MenuIcon />}
                 >
                   Disconnect
                 </Button>
@@ -198,6 +251,7 @@ const Navigation = () => {
                   color="primary"
                   component={Link}
                   to="/connect"
+                  startIcon={<MenuIcon />}
                 >
                   Connect Wallet
                 </Button>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
 
+
 const TransporterDashboard = () => {
-  const { ewasteTracker } = useContract();
+  const { ewasteTracker } = useAuth();
   const { signer, role } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

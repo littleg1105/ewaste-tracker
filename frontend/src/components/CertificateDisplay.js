@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
 
 const CertificateDisplay = () => {
-  const { ewasteCertificate, ewasteTracker } = useContract();
-  const { account } = useAuth();
+  const { eWasteCertificate } = useAuth();
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -14,16 +12,16 @@ const CertificateDisplay = () => {
 
   useEffect(() => {
     loadCertificates();
-  }, [ewasteCertificate]);
+  }, [eWasteCertificate]);
 
   const loadCertificates = async () => {
     try {
       setLoading(true);
-      const certificateCount = await ewasteCertificate.certificateCount();
+      const certificateCount = await eWasteCertificate.certificateCount();
       const certificatePromises = [];
 
       for (let i = 1; i <= certificateCount; i++) {
-        certificatePromises.push(ewasteCertificate.getCertificate(i));
+        certificatePromises.push(eWasteCertificate.getCertificate(i));
       }
 
       const certificateResults = await Promise.all(certificatePromises);
@@ -38,7 +36,7 @@ const CertificateDisplay = () => {
 
   const loadDeviceDetails = async (deviceId) => {
     try {
-      const device = await ewasteTracker.getDeviceById(deviceId);
+      const device = await eWasteCertificate.getDeviceById(deviceId);
       setDeviceDetails(device);
     } catch (err) {
       console.error('Error loading device details:', err);
@@ -47,7 +45,7 @@ const CertificateDisplay = () => {
 
   const verifyCertificate = async (certificateId) => {
     try {
-      const isValid = await ewasteCertificate.verifyCertificate(certificateId);
+      const isValid = await eWasteCertificate.verifyCertificate(certificateId);
       setVerificationResult(isValid);
     } catch (err) {
       console.error('Error verifying certificate:', err);

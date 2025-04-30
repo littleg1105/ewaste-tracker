@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
 
 const DeviceRegistration = () => {
-  const { ewasteTracker } = useContract();
+  const { ewasteTracker } = useAuth();
   const { signer } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

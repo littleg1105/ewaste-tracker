@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
 import './DeviceSearch.css';
 
 const DeviceSearch = () => {
-  const { ewasteTracker, loading: contractLoading, error: contractError } = useContract();
-  const { account } = useAuth();
+  const { ewasteTracker, loading: authLoading } = useAuth();
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,10 +33,10 @@ const DeviceSearch = () => {
   };
 
   useEffect(() => {
-    if (ewasteTracker && !contractLoading) {
+    if (ewasteTracker && !authLoading) {
       loadDevices();
     }
-  }, [ewasteTracker, contractLoading]);
+  }, [ewasteTracker, authLoading]);
 
   const loadDevices = async () => {
     try {
@@ -141,12 +139,8 @@ const DeviceSearch = () => {
     );
   });
 
-  if (contractLoading) {
+  if (authLoading) {
     return <div className="loading">Initializing contracts...</div>;
-  }
-
-  if (contractError) {
-    return <div className="error">Contract error: {contractError}</div>;
   }
 
   if (!ewasteTracker) {
@@ -198,64 +192,28 @@ const DeviceSearch = () => {
         {selectedDevice && (
           <div className="device-details">
             <h2 className="device-details-title">Device Details</h2>
-            <div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Serial Number:</span>{' '}
-                {selectedDevice.serialNumber}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Device Type:</span>{' '}
-                {selectedDevice.deviceType}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Hazard Level:</span>{' '}
-                {HazardLevel[selectedDevice.hazardLevel]}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Operational Status:</span>{' '}
-                {OperationalStatus[selectedDevice.operationalStatus]}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Current Status:</span>{' '}
-                {DeviceStatus[selectedDevice.status]}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Owner:</span>{' '}
-                {selectedDevice.deviceOwner}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Current Holder:</span>{' '}
-                {selectedDevice.currentHolder}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Registration Date:</span>{' '}
-                {new Date(selectedDevice.registrationDate * 1000).toLocaleString()}
-              </div>
-              <div className="device-detail-item">
-                <span className="device-detail-label">Last Update:</span>{' '}
-                {new Date(selectedDevice.lastUpdateDate * 1000).toLocaleString()}
-              </div>
+            <div className="device-info">
+              <p><strong>Serial Number:</strong> {selectedDevice.serialNumber}</p>
+              <p><strong>Type:</strong> {selectedDevice.deviceType}</p>
+              <p><strong>Status:</strong> {DeviceStatus[selectedDevice.status]}</p>
+              <p><strong>Hazard Level:</strong> {HazardLevel[selectedDevice.hazardLevel]}</p>
+              <p><strong>Operational Status:</strong> {OperationalStatus[selectedDevice.operationalStatus]}</p>
+              <p><strong>Owner:</strong> {selectedDevice.deviceOwner}</p>
+              <p><strong>Current Holder:</strong> {selectedDevice.currentHolder}</p>
+              <p><strong>Registration Date:</strong> {new Date(selectedDevice.registrationDate * 1000).toLocaleString()}</p>
+              <p><strong>Last Update:</strong> {new Date(selectedDevice.lastUpdateDate * 1000).toLocaleString()}</p>
             </div>
 
+            <h3 className="device-history-title">Device History</h3>
             <div className="device-history">
-              <h3 className="device-history-title">Device History</h3>
-              <div>
-                {deviceHistory.length === 0 ? (
-                  <div className="no-history">No history available</div>
-                ) : (
-                  deviceHistory.map((history, index) => (
-                    <div key={index} className="history-item">
-                      <div className="history-status">
-                        {DeviceStatus[history.status]}
-                      </div>
-                      <div className="history-timestamp">
-                        {new Date(history.timestamp * 1000).toLocaleString()}
-                      </div>
-                      <div className="history-notes">{history.notes}</div>
-                    </div>
-                  ))
-                )}
-              </div>
+              {deviceHistory.map((item, index) => (
+                <div key={index} className="history-item">
+                  <p><strong>Status:</strong> {DeviceStatus[item.status]}</p>
+                  <p><strong>Actor:</strong> {item.actor}</p>
+                  <p><strong>Notes:</strong> {item.notes}</p>
+                  <p><strong>Time:</strong> {new Date(item.timestamp * 1000).toLocaleString()}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}

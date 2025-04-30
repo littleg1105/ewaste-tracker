@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useContract } from '../context/ContractContext';
 import { useAuth } from '../context/AuthContext';
 
+
 const RecyclingUnitDashboard = () => {
-  const { ewasteTracker, eWasteCertificate } = useContract();
+  const { ewasteTracker, eWasteCertificate } = useAuth();
   const { signer, role, account } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
