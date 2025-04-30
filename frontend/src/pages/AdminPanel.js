@@ -8,6 +8,7 @@ const AdminPanel = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false); // New state for loading users
   
   const [formData, setFormData] = useState({
     userAddress: '',
@@ -59,6 +60,47 @@ const AdminPanel = () => {
       [name]: value,
     }));
   };
+
+  // Fetch all users when the component mounts
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (ewasteTracker && role === 0) { // Only run if contract is available and user is Admin
+        setLoadingUsers(true);
+        setError('');
+        try {
+          // --- ASSUMPTION: getAllUserAddresses exists ---
+          const userAddresses = await ewasteTracker.getAllUserAddresses(); 
+          
+          const userPromises = userAddresses.map(address => 
+            ewasteTracker.users(address) // Fetch details for each address
+          );
+          
+          const usersData = await Promise.all(userPromises);
+          
+          // Convert Structs/Arrays to Objects and BigInts to Numbers
+          const formattedUsers = usersData
+            .map(userStruct => ({ // Map the returned struct/array explicitly
+              userAddress: userStruct[0],
+              name: userStruct[1],
+              role: Number(userStruct[2]), // Convert role to Number
+              isActive: userStruct[3],
+              registrationDate: Number(userStruct[4]) // Convert timestamp to Number
+            }))
+            .filter(user => user.isActive); // Filter out inactive users
+            
+          setUsers(formattedUsers); 
+
+        } catch (err) {
+          console.error("Error fetching users:", err);
+          setError('Failed to load users. Ensure the contract has a getAllUserAddresses function.');
+        } finally {
+          setLoadingUsers(false);
+        }
+      }
+    };
+
+    fetchUsers();
+  }, [ewasteTracker, role]); // Re-run if contract or role changes
 
   // Check if user has admin role
   if (role !== 0) {
@@ -149,9 +191,50 @@ const AdminPanel = () => {
       
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Current Users</h2>
-        <p className="text-gray-600 italic">
-          Note: The functionality to list and manage existing users will be implemented in the next version.
-        </p>
+        {loadingUsers ? (
+          <p className="text-gray-600">Loading users...</p>
+        ) : error && !users.length ? ( // Show error only if user list couldn't be loaded
+           <p className="text-red-600">{error}</p>
+        ) : users.length === 0 ? (
+           <p className="text-gray-600 italic">No active users found.</p>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Address
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Registered
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map((user, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate" title={user.userAddress}>
+                    {user.userAddress.substring(0, 6)}...{user.userAddress.substring(user.userAddress.length - 4)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {user.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {roleNames[user.role]} 
+                  </td>
+                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(user.registrationDate * 1000).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

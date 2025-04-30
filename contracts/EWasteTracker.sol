@@ -77,6 +77,9 @@ contract EWasteTracker {
     // Mapping addresses to users
     mapping(address => User) public users;
 
+    // Array to store all user addresses for easier retrieval
+    address[] public userAddresses;
+
     // Mapping IDs to devices
     mapping(uint256 => Device) public devices;
 
@@ -125,6 +128,7 @@ contract EWasteTracker {
     constructor() {
         owner = msg.sender;
         users[msg.sender] = User(msg.sender, "Admin", Role.Admin, true, block.timestamp);
+        userAddresses.push(msg.sender); // Add admin to the list
     }
 
     /**
@@ -139,6 +143,7 @@ contract EWasteTracker {
     {
         require(!users[_userAddress].isActive, "User already exists");
         users[_userAddress] = User(_userAddress, _name, _role, true, block.timestamp);
+        userAddresses.push(_userAddress); // Add new user address to the array
         
         emit UserAdded(_userAddress, _name, _role);
     }
@@ -474,5 +479,17 @@ contract EWasteTracker {
         }
         
         return result;
+    }
+
+    /**
+     * @dev Get all user addresses
+     * @return addresses Array of all registered user addresses
+     */
+    function getAllUserAddresses() 
+        public 
+        view 
+        returns (address[] memory addresses) 
+    {
+        return userAddresses;
     }
 }

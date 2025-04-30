@@ -65,6 +65,18 @@ describe("EWasteTracker", function () {
       expect(await ewasteTracker.owner()).to.equal(owner.address);
     });
 
+    it("Should return all user addresses", async function () {
+      const addresses = await ewasteTracker.getAllUserAddresses();
+      // Expecting owner, user, greenPoint, transporter, recyclingUnit, inspector (6 total)
+      expect(addresses.length).to.equal(6);
+      expect(addresses).to.include(owner.address);
+      expect(addresses).to.include(user.address);
+      expect(addresses).to.include(greenPoint.address);
+      expect(addresses).to.include(transporter.address);
+      expect(addresses).to.include(recyclingUnit.address);
+      expect(addresses).to.include(inspector.address);
+    });
+
     it("Should not allow non-admin to add users", async function () {
       await expect(
         ewasteTracker.connect(user).addUser(user.address, "New User", Role.User)
