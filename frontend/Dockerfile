@@ -12,7 +12,15 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build the application
+# Add wget for health check
+RUN apk add --no-cache wget
+
+# Wait for contract addresses to be available (will be created by volume mount)
+COPY docker-wait-for-contracts.sh /scripts/
+RUN chmod +x /scripts/docker-wait-for-contracts.sh
+RUN mkdir -p /scripts
+
+# Build the application (with contract integration)
 RUN npm run build
 
 # Production stage

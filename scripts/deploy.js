@@ -1,38 +1,65 @@
 const hre = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
 async function main() {
+  console.log("\n📄 Starting deployment of E-Waste Tracker contracts...");
+  
+  // Get the signers
+  const [deployer] = await hre.ethers.getSigners();
+  console.log(`🔑 Deploying contracts with account: ${deployer.address}`);
+  
   // Deploy EWasteTracker
+  console.log("\n🔄 Deploying EWasteTracker contract...");
   const EWasteTracker = await hre.ethers.getContractFactory("EWasteTracker");
   const ewasteTracker = await EWasteTracker.deploy();
   await ewasteTracker.waitForDeployment();
   
-  console.log("EWasteTracker deployed to:", await ewasteTracker.getAddress());
+  const ewasteTrackerAddress = await ewasteTracker.getAddress();
+  console.log(`✅ EWasteTracker deployed to: ${ewasteTrackerAddress}`);
   
   // Deploy EWasteCertificate with EWasteTracker address
+  console.log("\n🔄 Deploying EWasteCertificate contract...");
   const EWasteCertificate = await hre.ethers.getContractFactory("EWasteCertificate");
-  const ewasteCertificate = await EWasteCertificate.deploy(await ewasteTracker.getAddress());
+  const ewasteCertificate = await EWasteCertificate.deploy(ewasteTrackerAddress);
   await ewasteCertificate.waitForDeployment();
   
-  console.log("EWasteCertificate deployed to:", await ewasteCertificate.getAddress());
+  const ewasteCertificateAddress = await ewasteCertificate.getAddress();
+  console.log(`✅ EWasteCertificate deployed to: ${ewasteCertificateAddress}`);
   
-  // Save contract addresses for future use
-  const fs = require("fs");
+  // Save contract addresses to file
   const contractAddresses = {
-    EWasteTracker: await ewasteTracker.getAddress(),
-    EWasteCertificate: await ewasteCertificate.getAddress()
+    EWasteTracker: ewasteTrackerAddress,
+    EWasteCertificate: ewasteCertificateAddress
   };
   
+  const frontendDir = path.join(__dirname, "..", "frontend", "src");
+  
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(frontendDir)) {
+    fs.mkdirSync(frontendDir, { recursive: true });
+  }
+  
+  const addressesPath = path.join(frontendDir, "contractAddresses.json");
+  
   fs.writeFileSync(
-    "./frontend/src/contractAddresses.json",
+    addressesPath,
     JSON.stringify(contractAddresses, null, 2)
   );
   
-  console.log("Contract addresses saved to frontend/src/contractAddresses.json");
+  console.log(`\n📝 Contract addresses saved to: ${addressesPath}`);
+  console.log("\n✨ Deployment completed successfully!");
+  
+  return {
+    EWasteTracker: ewasteTrackerAddress,
+    EWasteCertificate: ewasteCertificateAddress
+  };
 }
 
+// Execute main function and handle potential errors
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
+    console.error("❌ Deployment failed!", error);
     process.exit(1);
   });

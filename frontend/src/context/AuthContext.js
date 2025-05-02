@@ -3,7 +3,7 @@ import { BrowserProvider, Contract } from 'ethers';
 import Web3Modal from 'web3modal';
 import EWasteTracker from '../artifacts/contracts/EWasteTracker.sol/EWasteTracker.json';
 import EWasteCertificate from '../artifacts/contracts/EWasteCertificate.sol/EWasteCertificate.json';
-import contractAddresses from '../contractAddresses.json';
+import { CONTRACT_ADDRESSES } from '../deployment-timestamp';
 
 const AuthContext = createContext();
 
@@ -27,24 +27,24 @@ export const AuthProvider = ({ children }) => {
         return null;
       }
 
-      if (!contractAddresses.EWasteTracker || !contractAddresses.EWasteCertificate) {
-        throw new Error('Contract addresses not found in contractAddresses.json');
+      if (!CONTRACT_ADDRESSES.EWasteTracker || !CONTRACT_ADDRESSES.EWasteCertificate) {
+        throw new Error('Contract addresses not found in CONTRACT_ADDRESSES.json');
       }
 
       console.log('Initializing contracts with addresses:', {
-        tracker: contractAddresses.EWasteTracker,
-        certificate: contractAddresses.EWasteCertificate
+        tracker: CONTRACT_ADDRESSES.EWasteTracker,
+        certificate: CONTRACT_ADDRESSES.EWasteCertificate
       });
 
       // Create contract instances
       const trackerContract = new Contract(
-        contractAddresses.EWasteTracker,
+        CONTRACT_ADDRESSES.EWasteTracker,
         EWasteTracker.abi,
         signer
       );
 
       const certificateContract = new Contract(
-        contractAddresses.EWasteCertificate,
+        CONTRACT_ADDRESSES.EWasteCertificate,
         EWasteCertificate.abi,
         signer
       );
@@ -69,6 +69,18 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       console.log('Checking user role for address:', address);
+      
+      // First check if the current user is the contract owner (admin)
+      const ownerAddress = await contract.owner();
+      console.log('Contract owner:', ownerAddress);
+      
+      if (ownerAddress.toLowerCase() === address.toLowerCase()) {
+        console.log('User is the contract owner/admin');
+        setRole(0); // Set role to Admin (0)
+        return;
+      }
+      
+      // If not the owner, check the regular user role
       const user = await contract.users(address);
       
       if (user.isActive) {
