@@ -15,8 +15,9 @@
     "deploy:all": "npm run compile && npm run deploy && npm run reset-frontend && npm run add-test-data && npm run test-deployment",
     "node": "hardhat node",
     "clean": "hardhat clean",
-    "docker:start": "./start-docker.sh",
-    "docker:clean": "./docker-cleanup.sh",
+    "docker:start": "bash ./start-docker.sh",
+    "docker:start:win": "start-docker.bat",
+    "docker:clean": "bash ./docker-cleanup.sh",
     "docker:restart": "npm run docker:clean && npm run docker:start",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
@@ -24,7 +25,7 @@
     "docker:logs": "docker-compose logs -f",
     "docker:deploy": "docker-compose --profile deploy up",
     "docker:test": "docker-compose run --rm hardhat npx hardhat test",
-    "test-hardhat": "./test-hardhat.sh"
+    "test-hardhat": "node scripts/test-hardhat.js"
   },
   "keywords": [],
   "author": "",

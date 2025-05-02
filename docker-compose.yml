@@ -7,7 +7,7 @@ services:
     ports:
       - "8545:8545"
     volumes:
-      - .:/app
+      - ./:/app:delegated
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -33,9 +33,15 @@ services:
       - REACT_APP_HARDHAT_NETWORK=localhost
       - REACT_APP_HARDHAT_PORT=8545
     volumes:
-      - ./frontend:/app
-      - ./frontend/src/contractAddresses.json:/usr/share/nginx/html/contractAddresses.json
-      - ./frontend/src/deployment-timestamp.js:/usr/share/nginx/html/deployment-timestamp.js
+      - ./frontend:/app:delegated
+      - type: bind
+        source: ./frontend/src/contractAddresses.json
+        target: /usr/share/nginx/html/contractAddresses.json
+        consistency: cached
+      - type: bind
+        source: ./frontend/src/deployment-timestamp.js
+        target: /usr/share/nginx/html/deployment-timestamp.js
+        consistency: cached
 
   # Utility container to run commands against the hardhat node
   deployer:
@@ -43,7 +49,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./:/app:delegated
       - /app/node_modules
     depends_on:
       hardhat:

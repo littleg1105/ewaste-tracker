@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Create directories if needed
+mkdir -p ./src
+
 MAX_RETRIES=30
 RETRY_INTERVAL=5
 ADDRESSES_FILE="./src/contractAddresses.json"
@@ -22,6 +25,12 @@ if [ ! -f "$ADDRESSES_FILE" ]; then
   mkdir -p $(dirname "$ADDRESSES_FILE")
   echo '{"EWasteTracker":"0x0000000000000000000000000000000000000000","EWasteCertificate":"0x0000000000000000000000000000000000000000"}' > "$ADDRESSES_FILE"
   exit 0
+fi
+
+# Fix for Windows CRLF
+if grep -q $'\r' "$ADDRESSES_FILE"; then
+  echo "Converting CRLF to LF in $ADDRESSES_FILE"
+  tr -d '\r' < "$ADDRESSES_FILE" > "$ADDRESSES_FILE.tmp" && mv "$ADDRESSES_FILE.tmp" "$ADDRESSES_FILE"
 fi
 
 # Check content of file

@@ -1,6 +1,26 @@
 #!/bin/bash
 set -e
 
+# Fix for Windows CRLF and path issues
+fix_windows_files() {
+  if [ -f "$1" ]; then
+    # Convert CRLF to LF if needed
+    if grep -q $'\r' "$1"; then
+      echo "Converting CRLF to LF in $1"
+      sed -i 's/\r$//' "$1"
+    fi
+  fi
+}
+
+# Check for line ending issues in important scripts
+fix_windows_files "/app/scripts/deploy.js"
+fix_windows_files "/app/scripts/addTestData.js"
+fix_windows_files "/app/scripts/resetFrontend.js"
+fix_windows_files "/app/scripts/testDeployment.js"
+
+# Ensure the contractAddresses.json directory exists
+mkdir -p /app/frontend/src
+
 # Check if hardhat is available
 echo "Checking Hardhat installation..."
 if ! command -v npx &> /dev/null; then
@@ -33,6 +53,9 @@ wait_for_hardhat() {
 
 # Function to set up the contracts
 setup_contracts() {
+  # Ensure we're in the app directory
+  cd /app
+  
   echo "🔄 Compiling contracts..."
   npx hardhat compile
   
@@ -40,16 +63,16 @@ setup_contracts() {
   npx hardhat test
   
   echo "🔄 Deploying contracts..."
-  npx hardhat run scripts/deploy.js --network localhost
+  npx hardhat run /app/scripts/deploy.js --network localhost
   
   echo "🔄 Resetting frontend..."
-  node scripts/resetFrontend.js
+  node /app/scripts/resetFrontend.js
   
   echo "🔄 Adding test data..."
-  npx hardhat run scripts/addTestData.js --network localhost
+  npx hardhat run /app/scripts/addTestData.js --network localhost
   
   echo "🔄 Testing deployment..."
-  npx hardhat run scripts/testDeployment.js --network localhost
+  npx hardhat run /app/scripts/testDeployment.js --network localhost
   
   echo "✅ Contract setup completed!"
 }

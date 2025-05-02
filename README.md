@@ -68,13 +68,28 @@ For detailed step-by-step instructions for Windows users with no prior developme
 1. Install [Docker](https://www.docker.com/products/docker-desktop/) and [Docker Compose](https://docs.docker.com/compose/install/)
 2. Clone this repository:
    ```
-   git clone https://github.com/littleg1105/ewaste-tracker.git
+   git clone https://github.com/GITHUB_USERNAME/ewaste-tracker.git
    cd ewaste-tracker
    ```
 3. Start the application:
+   
+   **On macOS/Linux:**
    ```
-   docker-compose up -d
+   npm run docker:start
    ```
+   
+   **On Windows:**
+   ```
+   npm run docker:start:win
+   ```
+   
+   This will:
+   - Build all containers
+   - Compile smart contracts
+   - Run the test suite
+   - Deploy contracts
+   - Start the frontend
+   
 4. Open your browser and navigate to:
    ```
    http://localhost:80
