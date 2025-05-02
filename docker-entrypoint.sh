@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# Check if hardhat is available
+echo "Checking Hardhat installation..."
+if ! command -v npx &> /dev/null; then
+    echo "Error: npx is not installed or not in PATH"
+    exit 1
+fi
+
+npx hardhat --version || { echo "Error: Hardhat is not properly installed"; exit 1; }
+echo "Hardhat is installed and available!"
+
 # Function for waiting for the hardhat node to be ready
 wait_for_hardhat() {
   echo "Waiting for Hardhat node to be ready..."
@@ -24,22 +34,22 @@ wait_for_hardhat() {
 # Function to set up the contracts
 setup_contracts() {
   echo "🔄 Compiling contracts..."
-  npm run compile
+  npx hardhat compile
   
   echo "🧪 Running tests..."
-  npm test
+  npx hardhat test
   
   echo "🔄 Deploying contracts..."
-  npm run deploy
+  npx hardhat run scripts/deploy.js --network localhost
   
   echo "🔄 Resetting frontend..."
-  npm run reset-frontend
+  node scripts/resetFrontend.js
   
   echo "🔄 Adding test data..."
-  npm run add-test-data
+  npx hardhat run scripts/addTestData.js --network localhost
   
   echo "🔄 Testing deployment..."
-  npm run test-deployment
+  npx hardhat run scripts/testDeployment.js --network localhost
   
   echo "✅ Contract setup completed!"
 }

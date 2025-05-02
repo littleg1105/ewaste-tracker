@@ -28,8 +28,18 @@ mkdir -p ./frontend/src
 echo "🔄 Building and starting Docker containers..."
 echo "   (This will compile contracts, run tests, and deploy everything)"
 docker-compose down
-docker-compose build
+
+# Build containers with verbose output
+echo "🔄 Building containers..."
+docker-compose build || { echo "❌ Container build failed. See error above."; exit 1; }
+
+# Start containers
+echo "🔄 Starting containers..."
 docker-compose up -d
+
+# Show container status
+echo "🔄 Container status:"
+docker-compose ps
 
 echo "🔄 Waiting for services to be ready..."
 sleep 5

@@ -11,8 +11,14 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+# Install hardhat globally for CLI usage
+RUN npm install -g hardhat
+
 # Copy source code
 COPY . .
+
+# Verify Hardhat installation
+RUN npx hardhat --version
 
 # Make scripts directory
 RUN mkdir -p /scripts
