@@ -89,6 +89,16 @@ For detailed step-by-step instructions for Windows users with no prior developme
 3. Import the admin account (optional):
    - Private Key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
 
+### Running Tests
+
+You can run the smart contract test suite with Docker without deploying the full application:
+
+```
+npm run docker:test
+```
+
+This will run all the tests in a Docker container and show you the results.
+
 ## 📚 Documentation
 
 - [User Manual](./docs/USER_MANUAL.md) - Guide for using the application

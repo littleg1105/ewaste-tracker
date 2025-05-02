@@ -26,6 +26,9 @@ setup_contracts() {
   echo "🔄 Compiling contracts..."
   npm run compile
   
+  echo "🧪 Running tests..."
+  npm test
+  
   echo "🔄 Deploying contracts..."
   npm run deploy
   

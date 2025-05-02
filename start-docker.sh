@@ -26,6 +26,7 @@ mkdir -p ./frontend/src
 
 # Build and start the containers
 echo "🔄 Building and starting Docker containers..."
+echo "   (This will compile contracts, run tests, and deploy everything)"
 docker-compose down
 docker-compose build
 docker-compose up -d

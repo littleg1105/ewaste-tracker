@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "hardhat test",
+    "run-tests": "node scripts/runTests.js",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js --network localhost",
     "add-test-data": "hardhat run scripts/addTestData.js --network localhost",
@@ -21,7 +22,8 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "docker:deploy": "docker-compose --profile deploy up"
+    "docker:deploy": "docker-compose --profile deploy up",
+    "docker:test": "docker-compose run --rm hardhat npm run test"
   },
   "keywords": [],
   "author": "",

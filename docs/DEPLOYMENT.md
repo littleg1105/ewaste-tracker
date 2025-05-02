@@ -43,6 +43,8 @@ docker-compose up -d
 This single command will:
 - Build all necessary containers
 - Start a local Ethereum node
+- Compile the smart contracts
+- Run the test suite to verify contract functionality 
 - Deploy the smart contracts
 - Add test data automatically
 - Start the frontend application
@@ -76,6 +78,7 @@ The Docker setup consists of:
 1. **Hardhat Container**: 
    - Handles smart contract deployment
    - Runs the local Ethereum node
+   - Compiles and tests smart contracts
    - Automatically adds test data
 
 2. **Frontend Container**: 
