@@ -84,7 +84,7 @@ cd C:\EWasteTracker
 3. Download the project code:
 
 ```
-git clone https://github.com/yourusername/ewaste-tracker.git .
+git clone https://github.com/littleg1105/ewaste-tracker.git .
 ```
 
 (Replace "yourusername" with the actual GitHub username where the project is hosted)
@@ -97,6 +97,7 @@ git clone https://github.com/yourusername/ewaste-tracker.git .
 ```
 docker-compose up -d
 ```
+(see DEPLOYMENT.md for other available commands)
 
 3. Wait for Docker to download and set up everything (this may take a few minutes the first time)
 4. Once it's done, open your web browser and go to:

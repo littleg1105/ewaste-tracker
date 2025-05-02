@@ -68,7 +68,7 @@ For detailed step-by-step instructions for Windows users with no prior developme
 1. Install [Docker](https://www.docker.com/products/docker-desktop/) and [Docker Compose](https://docs.docker.com/compose/install/)
 2. Clone this repository:
    ```
-   git clone https://github.com/yourusername/ewaste-tracker.git
+   git clone https://github.com/littleg1105/ewaste-tracker.git
    cd ewaste-tracker
    ```
 3. Start the application:
@@ -95,7 +95,9 @@ For detailed step-by-step instructions for Windows users with no prior developme
 - [Technical Documentation](./docs/TECHNICAL_DOCUMENTATION.md) - Technical details and architecture
 - [API Documentation](./docs/API.md) - Smart contract functions and interactions
 - [Deployment Guide](./docs/DEPLOYMENT.md) - Detailed deployment instructions
-- [Docker Guide](./docs/DOCKER_GUIDE.md) - Docker-specific deployment instructions
+- [Windows Setup Guide](./docs/WINDOWS_SETUP_GUIDE.md) - Step-by-step guide for Windows users
+
+> Note: Documentation has been streamlined for clarity and ease of use.
 
 ## 📊 Project Structure
 
