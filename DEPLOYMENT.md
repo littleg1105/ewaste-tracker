@@ -134,7 +134,7 @@ This will:
 1. Start a container with a Hardhat node
 2. Automatically deploy all contracts
 3. Start the frontend application
-4. Make the frontend available at `http://localhost:3000`
+4. Make the frontend available at `http://localhost:80`
 
 ### Docker Commands
 

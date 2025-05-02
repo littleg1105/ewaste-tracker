@@ -51,7 +51,7 @@ echo "✅ Hardhat node is running at http://localhost:8545"
 # Check if frontend is running
 echo "Waiting for Frontend to be ready..."
 count=0
-while ! wget -q --spider http://localhost:3000 2>/dev/null; do
+while ! wget -q --spider http://localhost:80 2>/dev/null; do
     if [ $count -eq $MAX_RETRIES ]; then
         echo "❌ Frontend not ready after $MAX_RETRIES attempts. Check logs with: docker-compose logs frontend"
         exit 1
@@ -60,12 +60,12 @@ while ! wget -q --spider http://localhost:3000 2>/dev/null; do
     sleep 2
     ((count++))
 done
-echo "✅ Frontend is running at http://localhost:3000"
+echo "✅ Frontend is running at http://localhost:80"
 
 echo ""
 echo "🎉 E-Waste Tracker is now running!"
 echo "📋 Access points:"
-echo "- Frontend: http://localhost:3000"
+echo "- Frontend: http://localhost:80"
 echo "- Blockchain: http://localhost:8545"
 echo ""
 echo "📝 To view logs, run: docker-compose logs -f"

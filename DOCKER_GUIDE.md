@@ -44,7 +44,7 @@ After deployment, you can verify everything is working:
 
 ```bash
 # Check if contract addresses are available
-wget -q -O- http://localhost:3000/contractAddresses.json
+wget -q -O- http://localhost:80/contractAddresses.json
 
 # Check hardhat node status
 wget -q --spider http://localhost:8545
@@ -52,7 +52,7 @@ wget -q --spider http://localhost:8545
 
 ## Accessing the Application
 
-- **Frontend**: http://localhost:3000
+- **Frontend**: http://localhost:80
 - **Blockchain**: http://localhost:8545
 
 ## Architecture
@@ -81,7 +81,7 @@ If you see errors loading devices or permissions:
 
 2. Check contract addresses:
    ```bash
-   wget -q -O- http://localhost:3000/contractAddresses.json
+   wget -q -O- http://localhost:80/contractAddresses.json
    ```
 
 3. Restart all containers:
