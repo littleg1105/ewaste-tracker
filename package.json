@@ -33,6 +33,7 @@
   "type": "commonjs",
   "dependencies": {
     "chalk": "^4.1.2",
+    "ewaste-tracker": "file:",
     "hardhat": "^2.23.0"
   },
   "devDependencies": {

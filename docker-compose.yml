@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/app:delegated
       - /app/node_modules
+      - /app/scripts
     environment:
       - NODE_ENV=development
     healthcheck:
@@ -51,6 +52,7 @@ services:
     volumes:
       - ./:/app:delegated
       - /app/node_modules
+      - /app/scripts
     depends_on:
       hardhat:
         condition: service_healthy
